@@ -1,199 +1,121 @@
-## get_session_history
-```python
-```python
-def get_session_history(session_id):
-  """Retrieves the history of actions for a given session.
+# Document Writer: AST vs Tree-Sitter
 
-  This function fetches and returns a list of events that occurred within a specific session. 
+This repository contains two implementations for generating documentation from Python source code:
 
-  Args:
-    session_id: (str) A unique identifier for the session.
+1. **Document Writer AST**: Uses Python's built-in `ast` module to parse the abstract syntax tree.
+2. **Document Writer Tree**: Uses Tree-Sitter to parse the syntax tree.
 
-  Returns:
-    (list) A list of dictionaries, where each dictionary represents an event 
-          in the session history. Each event dictionary should contain at least
-          the following keys: 
-          * 'timestamp': (datetime) The time at which the event occurred.
-          * 'event_type': (str) The type of event (e.g., 'page_view', 'search', 'click').
-          * 'data': (dict) Any additional data associated with the event.
+Each implementation extracts function details and generates documentation using the Groq AI model.
 
-  Raises:
-    ValueError: If the provided `session_id` is invalid or not found.
+---
 
-  Examples:
-    ```python
-    # Example usage:
-    session_history = get_session_history("abc123def456")
-    print(session_history)  # Output: A list of session events
+## Document Writer AST
 
-    # Example event structure:
-    [
-      {
-        'timestamp': datetime(2023, 10, 26, 10, 30, 0),
-        'event_type': 'page_view',
-        'data': {'page_url': 'https://www.example.com/home'}
-      },
-      {
-        'timestamp': datetime(2023, 10, 26, 10, 32, 0),
-        'event_type': 'search',
-        'data': {'query': 'python tutorials'}
-      }
-    ]
-    ```
-  """
-  # Implementation logic to fetch session history based on session_id
-  # ...
-```
+### Overview
 
+The **AST-based document writer** relies on Python's built-in `ast` module to analyze Python scripts. It extracts the following elements:
 
+- Function names and arguments
+- Class names
+- Imported modules
+- Existing docstrings (if any)
 
-**Explanation:**
+After extracting the necessary information, it sends a request to Groq AI to generate detailed documentation, including usage examples. The results are stored in a Markdown file named **`output.md`**.
 
-* **Docstring Structure:** The docstring follows a standard structure:
-    * **Function Name:** Clearly states the function's name.
-    * **Description:** Provides a concise summary of what the function does.
-    * **Arguments:**  Details each input parameter, including its name, type, and purpose.
-    * **Returns:** Describes the type and content of the value returned by the function.
-    * **Raises:** Lists any exceptions the function might raise and the conditions under which they occur.
-    * **Examples:** Demonstrates how to use the function with concrete code snippets and expected outputs.
+### Features
 
-* **Clarity and Readability:**
-    *  The docstring uses plain language and avoids technical jargon wherever possible.
-    *  It breaks down information into logical sections using headings and bullet points for easy readability.
-    *  Line breaks and indentation enhance the visual structure.
+✅ Uses Python's built-in `ast` module (no extra dependencies required)\
+✅ Extracts function names, parameters, imports, and classes\
+✅ Reads existing docstrings and enhances them\
+✅ Outputs generated documentation to `output.md`
 
-* **Specificity:**
+### Limitations
 
-    *  The docstring explicitly mentions the format of the returned event dictionaries, including the expected keys and data types.
-    *  It provides a sample event structure to illustrate the expected output.
+❌ Cannot analyze complex syntax patterns or decorators effectively\
+❌ Might miss certain function arguments, especially in lambda functions\
+❌ Limited handling of nested functions and methods
 
+---
 
+## Document Writer Tree
 
-* **Usage Examples:**  The examples are well-formatted and demonstrate how to call the function and interpret the results.
+### Overview
 
-By providing comprehensive and clear documentation, you make your function more understandable and usable for others (and for your future self!).
+The **Tree-Sitter-based document writer** utilizes the `tree-sitter` library to parse Python code structurally. Unlike AST, Tree-Sitter provides a more flexible and robust parsing mechanism, making it better suited for analyzing modern Python syntax.
 
+### Features
 
-Let me know if you have any other functions you'd like documented!
-```
+✅ Uses Tree-Sitter for a more precise syntax tree\
+✅ Extracts function names and their parameters more accurately\
+✅ Works well with nested functions, decorators, and lambda expressions\
+✅ Outputs generated documentation to `outputs.md`
 
-## generate_response
-```python
-```python
-def generate_response(question, llm):
-  """Generates a response to a given question using a pre-trained language model.
+### Limitations
 
-  This function takes a question as input and utilizes a provided language model (`llm`) to generate a comprehensive and informative response. 
+❌ Requires external dependencies (`tree-sitter` and `tree-sitter-languages`)\
+❌ Does not extract class names or import statements\
+❌ Does not check existing docstrings before generating new ones
 
-  Args:
-      question (str): The question to be answered.
-      llm (object): A pre-trained language model object capable of text generation.
+---
 
-  Returns:
-      str: The generated response from the language model.
+## Comparison: AST vs Tree-Sitter
 
-  Examples:
-      ```python
-      # Assuming 'llm' is an instance of a language model like OpenAI's GPT-3
-      response = generate_response("What is the capital of France?", llm)
-      print(response)  # Output: Paris
+| Feature                 | AST-Based Approach | Tree-Sitter Approach     |
+| ----------------------- | ------------------ | ------------------------ |
+| **Dependencies**        | Built-in (`ast`)   | External (`tree-sitter`) |
+| **Function Parsing**    | Basic              | Advanced                 |
+| **Class Parsing**       | ✅ Yes              | ❌ No                     |
+| **Import Extraction**   | ✅ Yes              | ❌ No                     |
+| **Nested Functions**    | ❌ Limited          | ✅ Better Handling        |
+| **Decorator Handling**  | ❌ Limited          | ✅ Better Handling        |
+| **Existing Docstrings** | ✅ Uses them        | ❌ Ignores them           |
+| **Output File**         | `output.md`        | `outputs.md`             |
 
-      # Example with a more complex question
-      response = generate_response("Explain the concept of quantum entanglement.", llm)
-      print(response)  # Output: (A detailed explanation of quantum entanglement)
-      ```
+### Conclusion
 
-  """
-  # Implementation of response generation logic using the provided 'llm'
-  # ...
-``` 
+- If you want a lightweight, built-in solution that extracts **imports, classes, and function details**, use **Document Writer AST**.
+- If you need a more **precise function analysis**, especially for **nested functions and modern Python syntax**, use **Document Writer Tree**.
 
-**Explanation:**
+Both methods have their strengths and trade-offs. Choose based on your specific use case!
 
-* **Clear Docstring:** The docstring clearly explains the function's purpose, arguments, return value, and provides usage examples.
-* **Descriptive Language:**  The docstring uses precise language to describe what the function does and how it works. 
-* **Argument and Return Value Descriptions:** It specifies the expected data types for both the `question` argument and the returned `response`.
-* **Examples:** The examples demonstrate how to call the function with different types of questions and illustrate the expected output format.
+---
 
+## Setup & Usage
 
+1. Clone this repository:
 
-Let me know if you have any other functions you'd like me to document!
-```
+   ```sh
+   git clone https://github.com/yourusername/document-writer.git
+   cd document-writer
+   ```
 
-## response_generator
-```python
-```python
-def response_generator(prompt, llm):
-  """
-  Generates a response from a large language model (LLM) given a prompt.
+2. Install dependencies (for Tree-Sitter only):
 
-  This function takes a prompt as input and uses the provided LLM to generate a 
-  response. It is designed to be a flexible wrapper for interacting with different 
-  LLM APIs or libraries.
+   ```sh
+   pip install tree-sitter tree-sitter-languages langchain-groq
+   ```
 
-  Args:
-      prompt (str): The input prompt to be sent to the LLM.
-      llm (object): An object representing the LLM, which should have a `generate` 
-      method that accepts a prompt and returns a generated response.
+3. Run the AST-based parser:
 
-  Returns:
-      str: The generated response from the LLM.
+   ```sh
+   python document_writer_ast.py
+   ```
 
-  Examples:
-      >>> from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+4. Run the Tree-Sitter-based parser:
 
-      >>> # Load a pre-trained LLM model and tokenizer
-      >>> model_name = "t5-small"
-      >>> llm_model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-      >>> llm_tokenizer = AutoTokenizer.from_pretrained(model_name)
+   ```sh
+   python document_writer_tree.py
+   ```
 
-      >>> # Define a prompt
-      >>> prompt = "Translate the following sentence into Spanish: Hello, world!"
+5. Check the generated files:
 
-      >>> # Generate a response using the LLM
-      >>> response = response_generator(prompt, llm_model)
+   - `output.md` (from AST-based parser)
+   - `outputs.md` (from Tree-Sitter-based parser)
 
-      >>> # Print the response
-      >>> print(response)
-      
-      >>> # Example using a hypothetical LLM library
-      >>> from my_llm_library import MyLLM
+---
 
-      >>> # Initialize an instance of the LLM
-      >>> my_llm = MyLLM()
+## License
 
-      >>> # Generate a response
-      >>> response = response_generator(prompt, my_llm)
+This project is open-source and available under the MIT License.
 
-      >>> # Print the response
-      >>> print(response)
-  """
-  return llm.generate(prompt) 
-```
-
-**Explanation:**
-
-1. **Docstring Structure:** The docstring follows a standard format:
-   - **Description:** A concise summary of the function's purpose.
-   - **Arguments:** A detailed explanation of each parameter, including its type and meaning.
-   - **Returns:** A description of the value returned by the function.
-   - **Examples:**  Clear and practical examples demonstrating how to use the function.
-
-2. **Usage Examples:**
-   - **Transformers Example:** This example showcases how to use the function with a popular LLM library like Hugging Face Transformers. It demonstrates loading a pre-trained T5 model, tokenizing the prompt, and generating a response.
-   - **Hypothetical LLM Example:** This example illustrates the function's flexibility by assuming a custom LLM library (`my_llm_library`). It highlights how you can adapt the function to work with different LLM implementations.
-
-3. **Clarity and Readability:**
-   - The docstring is written in plain English, making it easy to understand.
-   - Proper spacing and indentation enhance readability.
-   - Code snippets are used within the examples to provide concrete illustrations.
-
-4. **Documentation Best Practices:**
-   - The docstring adheres to common documentation conventions, such as using triple quotes (`"""Docstring goes here"""`) and clear argument descriptions.
-   - It includes a comprehensive explanation of the function's purpose, inputs, outputs, and usage scenarios.
-
-
-
-Let me know if you have any other questions.
-```
-
+Author-Kush
