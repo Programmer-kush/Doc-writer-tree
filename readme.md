@@ -1,82 +1,71 @@
-# Document Writer: AST vs Tree-Sitter
+# Document Writer: AST vs. Tree-Sitter
 
-This repository contains two implementations for generating documentation from Python source code:
-
-1. **Document Writer AST**: Uses Python's built-in `ast` module to parse the abstract syntax tree.
-2. **Document Writer Tree**: Uses Tree-Sitter to parse the syntax tree.
-
-Each implementation extracts function details and generates documentation using the Groq AI model.
+## Overview
+This repository contains two different approaches for generating Python function documentation: **AST-based parsing** and **Tree-Sitter-based parsing**. Both implementations extract function details and use an LLM (Groq API) to generate documentation automatically.
 
 ---
 
-## Document Writer AST
+## 1️⃣ AST-Based Document Writer
 
-### Overview
-
-The **AST-based document writer** relies on Python's built-in `ast` module to analyze Python scripts. It extracts the following elements:
-
-- Function names and arguments
-- Class names
-- Imported modules
-- Existing docstrings (if any)
-
-After extracting the necessary information, it sends a request to Groq AI to generate detailed documentation, including usage examples. The results are stored in a Markdown file named **`output.md`**.
+### Description
+The **AST (Abstract Syntax Tree)** approach utilizes Python's built-in `ast` module to analyze a given Python script and extract relevant information about functions, classes, and imports. The extracted data is then processed and passed to an AI model to generate meaningful documentation.
 
 ### Features
+- Uses Python's native `ast` module for parsing.
+- Extracts functions, classes, and imports.
+- Captures function names, arguments, and docstrings.
+- Generates documentation in **Markdown format** (`output.md`).
 
-✅ Uses Python's built-in `ast` module (no extra dependencies required)\
-✅ Extracts function names, parameters, imports, and classes\
-✅ Reads existing docstrings and enhances them\
-✅ Outputs generated documentation to `output.md`
+### Workflow
+1. Reads and parses a Python script using `ast.parse()`.
+2. Extracts function definitions, arguments, and existing docstrings.
+3. Sends extracted details to an AI model for docstring generation.
+4. Saves the generated documentation into `output.md`.
 
-### Limitations
-
-❌ Cannot analyze complex syntax patterns or decorators effectively\
-❌ Might miss certain function arguments, especially in lambda functions\
-❌ Limited handling of nested functions and methods
+### File Generated
+- `output.md`: Contains the generated documentation in Markdown format.
 
 ---
 
-## Document Writer Tree
+## 2️⃣ Tree-Sitter-Based Document Writer
 
-### Overview
-
-The **Tree-Sitter-based document writer** utilizes the `tree-sitter` library to parse Python code structurally. Unlike AST, Tree-Sitter provides a more flexible and robust parsing mechanism, making it better suited for analyzing modern Python syntax.
+### Description
+The **Tree-Sitter** approach uses a more advanced parsing technique, enabling precise function extraction even in cases where the AST parser might struggle (e.g., handling dynamically generated code or more complex syntax structures).
 
 ### Features
+- Uses **Tree-Sitter**, a powerful incremental parsing tool.
+- Extracts function names and their parameters efficiently.
+- Generates structured documentation using Groq AI.
+- Saves output in **Markdown format** (`outputs.md`).
 
-✅ Uses Tree-Sitter for a more precise syntax tree\
-✅ Extracts function names and their parameters more accurately\
-✅ Works well with nested functions, decorators, and lambda expressions\
-✅ Outputs generated documentation to `outputs.md`
+### Workflow
+1. Uses Tree-Sitter to parse a Python script and identify function nodes.
+2. Extracts function names and parameters from the syntax tree.
+3. Sends the extracted details to an AI model for generating docstrings.
+4. Saves the generated documentation into `outputs.md`.
 
-### Limitations
-
-❌ Requires external dependencies (`tree-sitter` and `tree-sitter-languages`)\
-❌ Does not extract class names or import statements\
-❌ Does not check existing docstrings before generating new ones
+### File Generated
+- `outputs.md`: Contains the generated documentation in Markdown format.
 
 ---
 
-## Comparison: AST vs Tree-Sitter
+## 🔍 Comparison: AST vs. Tree-Sitter
+| Feature            | AST-Based Approach  | Tree-Sitter-Based Approach  |
+|--------------------|--------------------|----------------------------|
+| Parsing Method    | Python `ast` module | Tree-Sitter Parser |
+| Function Extraction | ✅ Extracts functions | ✅ Extracts functions |
+| Class Extraction   | ✅ Yes | ❌ No |
+| Import Extraction  | ✅ Yes | ❌ No |
+| Handles Complex Syntax | ❌ Limited | ✅ More robust |
+| Output File       | `output.md` | `outputs.md` |
 
-| Feature                 | AST-Based Approach | Tree-Sitter Approach     |
-| ----------------------- | ------------------ | ------------------------ |
-| **Dependencies**        | Built-in (`ast`)   | External (`tree-sitter`) |
-| **Function Parsing**    | Basic              | Advanced                 |
-| **Class Parsing**       | ✅ Yes              | ❌ No                     |
-| **Import Extraction**   | ✅ Yes              | ❌ No                     |
-| **Nested Functions**    | ❌ Limited          | ✅ Better Handling        |
-| **Decorator Handling**  | ❌ Limited          | ✅ Better Handling        |
-| **Existing Docstrings** | ✅ Uses them        | ❌ Ignores them           |
-| **Output File**         | `output.md`        | `outputs.md`             |
+### Summary
+- **AST-Based Approach** is simpler, leveraging built-in Python modules but is limited in handling complex syntax.
+- **Tree-Sitter-Based Approach** is more robust, efficiently handling complex structures but requires an external parser.
 
-### Conclusion
+Both implementations generate structured documentation automatically, helping in code documentation and analysis. Choose based on your project needs!
 
-- If you want a lightweight, built-in solution that extracts **imports, classes, and function details**, use **Document Writer AST**.
-- If you need a more **precise function analysis**, especially for **nested functions and modern Python syntax**, use **Document Writer Tree**.
 
-Both methods have their strengths and trade-offs. Choose based on your specific use case!
 
 ---
 
